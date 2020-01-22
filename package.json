@@ -1,0 +1,29 @@
+{
+  "name": "hash-chain",
+  "version": "0.0.0",
+  "description": "Hash Chain implementation using Blake2b",
+  "main": "index.js",
+  "dependencies": {
+    "nanoassert": "^2.0.0",
+    "sodium-universal": "^2.0.0"
+  },
+  "devDependencies": {
+    "standard": "^14.3.1",
+    "tape": "^4.12.1"
+  },
+  "scripts": {
+    "pretest": "standard",
+    "test": "tape test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emilbayes/hash-chain.git"
+  },
+  "keywords": [],
+  "author": "Emil Bay <github@tixz.dk>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/emilbayes/hash-chain/issues"
+  },
+  "homepage": "https://github.com/emilbayes/hash-chain#readme"
+}
