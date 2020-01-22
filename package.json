@@ -1,6 +1,6 @@
 {
   "name": "hash-chain",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Hash Chain implementation using Blake2b",
   "main": "index.js",
   "dependencies": {
