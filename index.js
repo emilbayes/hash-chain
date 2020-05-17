@@ -30,15 +30,6 @@ class HashChain {
     var start = this.offset
     for (var i = start; i < this.length; i++) {
       yield this._get(i)
-      this.offset++
-    }
-  }
-
-  * entries () {
-    var start = this.offset
-    for (var i = start; i < this.length; i++) {
-      yield [i, this._get(i)]
-      this.offset++
     }
   }
 
