@@ -19,18 +19,41 @@ class HashChain {
     assert(i < this.length)
     assert(i >= 0)
 
+    return this._get(i)
+  }
+
+  _get (i) {
     return this.chain.subarray(i * BYTES, (i + 1) * BYTES)
   }
 
   * [Symbol.iterator] () {
-    var start = this.offset * BYTES
-    for (var i = start; i < this.chain.byteLength; i += BYTES) {
-      yield this.chain.subarray(i, i + BYTES)
+    var start = this.offset
+    for (var i = start; i < this.length; i++) {
+      yield this._get(i)
       this.offset++
     }
   }
 
-  static generate (seed, n) {
+  * entries () {
+    var start = this.offset
+    for (var i = start; i < this.length; i++) {
+      yield [i, this._get(i)]
+      this.offset++
+    }
+  }
+
+  anchors (dist) {
+    var i = this.length - 1
+    var list = []
+    while (i > 0) {
+      list.unshift(this.get(i))
+      i -= dist
+    }
+
+    return list
+  }
+
+  static generate (seed, n, offset = 0) {
     assert(seed.byteLength === SEEDBYTES)
     assert(n > 1)
     const chain = Buffer.alloc(n * BYTES)
@@ -43,7 +66,11 @@ class HashChain {
       sodium.crypto_generichash(chain.subarray(i - BYTES, i), chain.subarray(i, i + BYTES))
     }
 
-    return new this(chain, 0)
+    return new this(chain, offset)
+  }
+
+  static fromAnchors (anchors, dist, offset) {
+    return new HashChainAnchor(anchors, dist, offset)
   }
 
   static seedgen (buf) {
@@ -58,6 +85,45 @@ class HashChain {
     const scratch = Buffer.alloc(BYTES)
     sodium.crypto_generichash(scratch, prev)
     return sodium.sodium_memcmp(hash, scratch)
+  }
+}
+
+class HashChainAnchor extends HashChain {
+  constructor (anchors, dist, offset = 0) {
+    super(Buffer.alloc(0), 0)
+
+    this.offset = offset
+    this.length = anchors.length * dist
+
+    this.anchors = anchors
+    this.dist = dist
+
+    this.cursor = 1
+    this._buf = Buffer.alloc(BYTES * dist)
+
+    this.get(0)
+  }
+
+  _get (i) {
+    var distOff = this._fill(i)
+    i -= distOff
+    return this._buf.subarray(i * BYTES, (i + 1) * BYTES)
+  }
+
+  _fill (i) {
+    var interval = Math.floor(i / (this.dist))
+    if (this.cursor === interval) return interval * this.dist
+
+    var end = this._buf.byteLength
+    this._buf.subarray(end - BYTES, end).set(this.anchors[interval])
+    end -= BYTES
+
+    for (var j = end; j >= BYTES; j -= BYTES) {
+      sodium.crypto_generichash(this._buf.subarray(j - BYTES, j), this._buf.subarray(j, j + BYTES))
+    }
+
+    this.cursor = interval
+    return interval * this.dist
   }
 }
 
