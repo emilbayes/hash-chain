@@ -7,11 +7,11 @@ const BYTES = 32
 class HashChain {
   constructor (chain, offset = 0) {
     assert(Buffer.isBuffer(chain))
-    assert(offset >= 0)
+    // assert(offset >= 0)
     this.chain = chain
     this.offset = offset
     this.length = chain.byteLength / BYTES
-    assert(offset < this.length)
+    assert(offset <= this.length)
   }
 
   get (offset) {
