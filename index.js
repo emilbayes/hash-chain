@@ -1,4 +1,4 @@
-const sodium = require('sodium-universal')
+const sodium = require('sodium-native')
 const assert = require('nanoassert')
 
 const SEEDBYTES = 32
